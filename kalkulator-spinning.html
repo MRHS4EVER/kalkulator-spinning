@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kalkulator Spinning – Produksi, Twist, Konversi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap">
+<style>
+:root{--bg:#eef1f7;--card:#fff;--ink:#131b33;--mut:#5d6785;--line:#d5dbe8;--ind:#22356b;--soft:#e4e9f6;--on:#fff;--gold:#e3a21a;--hd:#22356b;--err:#b3261e;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1226;--card:#151c38;--ink:#e9ecf7;--mut:#9aa5c9;--line:#29335c;--ind:#8fa8ee;--soft:#1f2850;--on:#0d1226;--gold:#f0b63a;--hd:#151c38;--err:#ff8f86}}
+:root[data-theme="dark"]{--bg:#0d1226;--card:#151c38;--ink:#e9ecf7;--mut:#9aa5c9;--line:#29335c;--ind:#8fa8ee;--soft:#1f2850;--on:#0d1226;--gold:#f0b63a;--hd:#151c38;--err:#ff8f86}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+header{background:var(--hd);color:#fff;padding:16px 18px 0;overflow:hidden}
+.hd{max-width:640px;margin:0 auto}
+#back{display:inline-block;color:#c9d3f2;text-decoration:none;font-weight:700;padding:4px 0 8px}
+h1{font:800 1.8rem/1.1 "Bricolage Grotesque",Figtree,system-ui,sans-serif;margin:0;letter-spacing:-.02em}
+header p{margin:6px 0 0;color:#c9d3f2;font-size:.95rem}
+header p.by{margin-top:10px;font-size:.85rem;font-weight:700;color:var(--gold);line-height:1.4}
+header p.by span{font-size:.8rem;font-weight:500;color:#c9d3f2}
+.yarn{display:block;width:100%;max-width:640px;margin:10px auto 0;height:40px}
+.yarn path{fill:none;stroke-linecap:round;stroke-dasharray:900;stroke-dashoffset:900;animation:draw 1.8s ease-out forwards}
+.yarn .b{animation-delay:.25s}
+@keyframes draw{to{stroke-dashoffset:0}}
+@media(prefers-reduced-motion:reduce){.yarn path{animation:none;stroke-dashoffset:0}}
+main{max-width:640px;margin:0 auto;padding:16px 14px 40px}
+h2{font:600 1.05rem "Bricolage Grotesque",Figtree,sans-serif;margin:22px 0 10px}
+.flow{position:relative;padding-left:46px;margin:0;list-style:none}
+.flow::before{content:"";position:absolute;left:17px;top:18px;bottom:18px;width:4px;border-radius:2px;background:var(--gold)}
+.flow li{position:relative;margin-bottom:10px}
+.flow li::before{content:attr(data-n);position:absolute;left:-46px;top:50%;margin-top:-18px;width:36px;height:36px;border-radius:50%;background:var(--ind);color:var(--on);display:grid;place-items:center;font:800 .95rem "Bricolage Grotesque",sans-serif;border:3px solid var(--bg)}
+.tile{display:block;width:100%;text-align:left;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;font:inherit}
+.tile b{display:block;font:600 1.05rem "Bricolage Grotesque",Figtree,sans-serif}
+.tile span{color:var(--mut);font-size:.85rem}
+.tile:active,.tile:hover{border-color:var(--ind)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+label{display:block;font-size:.85rem;font-weight:500;color:var(--mut);margin:12px 0 5px}
+input,select{width:100%;padding:12px;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px}
+input:focus,select:focus{border-color:var(--ind)}
+.eq{margin:0;padding:9px 12px;border-radius:10px;background:var(--soft);font-size:.88rem}
+.btns{display:flex;gap:8px;margin-top:16px}
+.pri,.sec,.sw{padding:12px 18px;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;border:1.5px solid var(--ind)}
+.pri{flex:1;background:var(--ind);color:var(--on)}.sec,.sw{background:transparent;color:var(--ind)}
+.res{border:2px dashed var(--gold);background:var(--card);border-radius:16px;padding:16px}
+.res.empty{color:var(--mut);text-align:center;border-color:var(--line)}
+.k{font-size:.85rem;color:var(--mut)}
+.big{font:800 2rem/1.1 "Bricolage Grotesque",Figtree,sans-serif;word-break:break-word}
+.big small{font:500 .95rem Figtree,sans-serif;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:.93rem;margin-top:12px}
+td{padding:8px 4px;border-top:1px solid var(--line)}td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+td small{color:var(--mut)}
+tr.hit td{background:var(--soft);font-weight:700}tr.hit td:first-child{box-shadow:inset 4px 0 var(--gold);padding-left:10px}
+.row{display:flex;gap:8px;align-items:flex-end}.row>label{flex:1}.sw{padding:11px 14px}
+.cv{font:800 1.25rem/1.25 "Bricolage Grotesque",Figtree,sans-serif;margin:16px 0 0;word-break:break-word}
+.err{color:var(--err);font-weight:500}
+.note{font-size:.82rem;color:var(--mut);margin:10px 0 0}
+</style>
+</head>
+<body>
+<header><div class="hd"><a id="back" href="#" hidden>‹ Beranda</a><h1 id="ttl"></h1><p id="sub"></p><p class="by" id="by">Developed by: Muhammad Ressa H. S.<br><span>AK - Tekstil Solo</span></p></div>
+<svg class="yarn" viewBox="0 0 360 40" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 20C30 0 60 40 90 20S150 0 180 20S240 40 270 20S330 0 360 20" stroke="#e3a21a" stroke-width="6"/>
+<path class="b" d="M0 20C30 40 60 0 90 20S150 40 180 20S240 0 270 20S330 40 360 20" stroke="#dfe5fa" stroke-width="6"/></svg></header>
+<main id="app"></main>
+<script>
+const GL=453.59237,MY=.9144,$=(s,r=document)=>r.querySelector(s);
+function num(t){t=String(t).trim().replace("%","").replace(",",".");return t?Number(t):NaN}
+function fmt(x,d=6){
+  if(x===0)return "0";let s;
+  if(Math.abs(x)>=1e9||Math.abs(x)<1e-4){let[m,e]=x.toExponential(d-1).split("e");if(m.includes("."))m=m.replace(/0+$/,"").replace(/\.$/,"");s=m+"e"+e}
+  else{s=x.toPrecision(d);if(s.includes("e"))s=x.toFixed(d);if(s.includes("."))s=s.replace(/0+$/,"").replace(/\.$/,"")}
+  return s.replace(".",",");
+}
+/* ===== DATA & RUMUS ===== */
+const JAM=["jam","Lama produksi [jam]",8],EF=d=>["eff","Efisiensi mesin [%]",d];
+function hasil(kg,e,jam,x=[]){const th=kg*100/e;return{main:["Produksi aktual",kg,"kg"],rows:[["Per jam",kg/jam,"kg/jam"],["Teoritis (efisiensi 100%)",th,"kg"],["Produksi hilang",th-kg,"kg"],...x]}}
+const deliv=(t,s,sp,n,jl,ne,nl,ef)=>({t,s,eq:"Produksi (kg) = (Speed × 60 × Jam × Eff × Jumlah × 453,6) / (840 × 0,9144 × Ne × 1000)",
+  fields:[["sp","Delivery speed [meter/menit]",sp],["n",jl,n],["ne",nl,ne],JAM,EF(ef)],
+  fn:v=>hasil(v.sp*60*v.jam*v.eff/100*v.n*453.6/(840*MY*v.ne*1000),v.eff,v.jam)});
+const spin=(t,s,rpm,tm,ne,n,ef)=>({t,s,eq:"Produksi (kg) = (RPM × 60 × Jam × Eff × Spindle × 453,6) / (TPI × 840 × 36 × Ne × 1000)",
+  note:"Twist: TPI = TM × √Ne dan TPM = TPI × 39,37.",
+  fields:[["rpm","RPM spindle",rpm],["m","Twist diketahui sebagai",0,{s:["TM (twist multiplier)","TPI","TPM"]}],
+    ["t0","Twist multiplier (TM)",tm,{w:["m",0]}],["t1","TPI [antihan/inci]",20,{w:["m",1]}],["t2","TPM [antihan/meter]",800,{w:["m",2]}],
+    ["ne","Nomor Ne [hank/lbs]",ne],["n","Jumlah spindle aktif",n],JAM,EF(ef)],
+  fn:v=>{const tpi=v.m==0?v.t0*Math.sqrt(v.ne):v.m==1?v.t1:v.t2/39.37;
+    return hasil(v.rpm*60*v.jam*v.eff/100*v.n*453.6/(tpi*840*36*v.ne*1000),v.eff,v.jam,[["TPI",tpi,"antihan/inci"],["TPM",tpi*39.37,"antihan/meter"]])}});
+const TW={
+  0:["Ne₁ gintir [hank/lbs]",(n,t,x)=>n*453.6/(t*768*x),"(n × 453,6) / (TPM × 768 × Ne₁)"],
+  1:["Nm gintir [meter/gram]",(n,t,x)=>n/(t*x),"n / (TPM × Nm)"],
+  2:["Denier gintir [gram/9000 m]",(n,t,x)=>n*x/(t*9000),"(n × Denier) / (TPM × 9000)"],
+  3:["Tex gintir [gram/1000 m]",(n,t,x)=>n*x/(t*1000),"(n × Tex) / (TPM × 1000)"]};
+const ST=["Winding","Ring Spinning","Roving","Finisher DF","Breaker DF","Carding","Blow Room"];
+const CAL={
+  blowing:{t:"Blowing",s:"Blow room: kapasitas lini per jam",eq:"Produksi = Kapasitas (kg/jam) × Jam × Eff × Jumlah lini",
+    fields:[["kap","Kapasitas lini [kg/jam]",800],["n","Jumlah lini",1],JAM,EF(85)],
+    fn:v=>hasil(v.kap*v.jam*v.eff/100*v.n,v.eff,v.jam)},
+  carding:deliv("Carding","Serat menjadi sliver",200,1,"Jumlah mesin carding",.12,"Nomor sliver Ne [hank/lbs]",90),
+  drawing:deliv("Drawing","Breaker dan finisher draw frame",600,1,"Jumlah delivery",.12,"Nomor sliver Ne [hank/lbs]",85),
+  roving:spin("Roving","Simplex atau speed frame",1200,1.2,1,120,82),
+  ring:spin("Ring Spinning","Ring frame: sliver atau roving menjadi benang",16000,4,30,1000,93),
+  winding:deliv("Winding","Penggulungan benang ke cone",1500,1,"Jumlah drum",30,"Nomor benang Ne [hank/lbs]",80),
+  twisting:{t:"Twisting",s:"Mesin penggintir benang",eq:"Produksi per spindle (g/menit), rumus mengikuti sistem nomor benang",
+    note:"Nomor benang adalah nomor benang gintir (mis. Ne 20/2 → Ne₁ = 10).",
+    fields:[["m","Sistem nomor benang",0,{s:["Ne₁","Nm","Denier","Tex"]}],["rpm","n spindle [putaran/menit]",8000],["tpm","TPM [antihan/meter]",600],
+      ...[0,1,2,3].map(i=>["x"+i,TW[i][0],10,{w:["m",i]}]),["n","Jumlah spindle",1],JAM,EF(90)],
+    fn:v=>{const g=TW[v.m][1](v.rpm,v.tpm,v["x"+v.m])*v.eff/100;
+      const r=hasil(g*v.n*60*v.jam/1000,v.eff,v.jam,[["Aktual per spindle",g,"g/menit"]]);return r}},
+  twist:{t:"TPI ⇄ TPM",s:"Konversi dan perhitungan twist",eq:"TPI = TM × √Ne  |  TPM = TPI × 39,37  |  TPI = TPM / 39,37",
+    fields:[["m","Hitung dari",0,{s:["TM dan Ne → TPI dan TPM","TPI → TPM","TPM → TPI"]}],["t0","Twist multiplier (TM)",4,{w:["m",0]}],["ne","Nomor Ne [hank/lbs]",30,{w:["m",0]}],
+      ["t1","TPI [antihan/inci]",20,{w:["m",1]}],["t2","TPM [antihan/meter]",800,{w:["m",2]}]],
+    fn:v=>{if(v.m==2)return{main:["TPI",v.t2/39.37,"antihan/inci"],rows:[]};
+      const tpi=v.m==0?v.t0*Math.sqrt(v.ne):v.t1;
+      return v.m==0?{main:["TPI",tpi,"antihan/inci"],rows:[["TPM",tpi*39.37,"antihan/meter"]]}:{main:["TPM",tpi*39.37,"antihan/meter"],rows:[]}}},
+  plan:{t:"Spin plan",s:"Hitung mundur kebutuhan produksi dan waste",eq:"Produksi proses sebelumnya = Target + (Target × Waste% / 100)",
+    note:"Contoh waste dari modul: Winding 1%, Ring 2%, Roving 0,75%, DF 0,4–0,5%, Carding 3–6%.",
+    fields:[["T","Target produksi Winding [kg]",1000],...[["Winding",1],["Ring Spinning",2],["Roving",.75],["Finisher DF",.5],["Breaker DF",.5],["Carding",4.5]].map((a,i)=>["w"+i,"Waste di "+a[0]+" [%]",a[1],{z:1}])],
+    fn:v=>{let p=v.T;const rows=[[ST[0],p,"kg"]];for(let i=0;i<6;i++){p+=p*v["w"+i]/100;rows.push([ST[i+1],p,"kg"])}
+      return{main:["Kebutuhan Blow Room",p,"kg"],rows:rows.concat([["Tambahan akibat waste",p-v.T,"kg"]])}}},
+  mesin:{t:"Jumlah mesin",s:"Kebutuhan produksi dibagi kapasitas satu mesin",eq:"Jumlah mesin = Produksi dibutuhkan / Kapasitas 1 mesin",
+    fields:[["P","Total produksi dibutuhkan [kg]",5000],["c","Kapasitas 1 mesin [kg]",800]],
+    fn:v=>({main:["Mesin dibutuhkan (dibulatkan ke atas)",Math.ceil(v.P/v.c-1e-9),"mesin"],rows:[["Hasil hitungan",v.P/v.c,"mesin"]]})}
+};
+const NB={"Tex":[1,1,"g/1000 m"],"Dtex":[1,.1,"g/10.000 m"],"Denier":[1,1/9,"g/9000 m"],
+  "Ne (katun)":[0,1000*GL/(840*MY),"hank 840 yd/lbs"],"Nm (metrik)":[0,1000,"m/g"],
+  "Nw (worsted)":[0,1000*GL/(560*MY),"hank 560 yd/lbs"],"Nel (linen)":[0,1000*GL/(300*MY),"lea 300 yd/lbs"]};
+const toTex=(v,s)=>NB[s][0]?NB[s][1]*v:NB[s][1]/v,fromTex=(t,s)=>NB[s][0]?t/NB[s][1]:NB[s][1]/t;
+const PJ={"Milimeter (mm)":.001,"Sentimeter (cm)":.01,"Meter (m)":1,"Kilometer (km)":1000,"Inci (inch)":.0254,"Kaki (foot)":.3048,"Yard (yd)":MY,"Mil (mile)":1609.344,
+  "Hank katun (840 yd)":840*MY,"Hank worsted (560 yd)":560*MY,"Lea linen (300 yd)":300*MY,"Lea/skein katun (120 yd)":120*MY};
+const BR={"Miligram (mg)":.001,"Gram (g)":1,"Kilogram (kg)":1000,"Ton metrik (t)":1e6,"Ons (oz)":GL/16,"Pound (lbs)":GL,"Grain (gr)":GL/7000,"Stone (st)":GL*14,"Short ton (US)":GL*2000,"Long ton (UK)":GL*2240};
+const KV={
+  nomor:{t:"Nomor benang",s:"Tex, Dtex, Denier, Ne, Nm, Nw, Nel",names:Object.keys(NB),fn:(v,a,b)=>fromTex(toTex(v,a),b),notes:Object.fromEntries(Object.entries(NB).map(([k,x])=>[k,x[2]]))},
+  panjang:{t:"Panjang",s:"Metrik, imperial, hank, dan lea",names:Object.keys(PJ),fn:(v,a,b)=>v*PJ[a]/PJ[b]},
+  berat:{t:"Berat",s:"Gram, kilogram, pound, ons, grain",names:Object.keys(BR),fn:(v,a,b)=>v*BR[a]/BR[b]}};
+/*UI*/
+function konv(root,k){
+  root.innerHTML=`<div class="card"><label>Nilai</label><input class="v" inputmode="decimal" value="1" aria-label="Nilai">
+  <div class="row"><label>Dari<select class="a"></select></label><button class="sw" aria-label="Tukar satuan">⇄</button><label>Ke<select class="b"></select></label></div>
+  <div class="cv"></div></div><div class="card"><table></table></div>`;
+  const a=$(".a",root),b=$(".b",root),v=$(".v",root),big=$(".cv",root),tb=$("table",root);
+  [a,b].forEach(s=>k.names.forEach(n=>s.add(new Option(n,n))));b.selectedIndex=1;
+  function up(){
+    const x=num(v.value);tb.innerHTML="";
+    if(!(x>0)){big.innerHTML='<span class="err">Nilai harus berupa angka lebih dari 0.</span>';return}
+    big.textContent=`${fmt(x)} ${a.value} = ${fmt(k.fn(x,a.value,b.value))} ${b.value}`;
+    tb.innerHTML=k.names.map(n=>`<tr class="${n===b.value?"hit":""}"><td>${n}${k.notes?`<br><small>${k.notes[n]}</small>`:""}</td><td>${fmt(k.fn(x,a.value,n))}</td></tr>`).join("");
+  }
+  [v,a,b].forEach(e=>e.addEventListener("input",up));
+  $(".sw",root).onclick=()=>{const t=a.value;a.value=b.value;b.value=t;up()};up();
+}
+function calc(root,c){
+  const fh=c.fields.map(([k,l,d,o={}])=>`<div data-k="${k}">${o.s?
+    `<label for="f_${k}">${l}</label><select id="f_${k}">${o.s.map((x,i)=>`<option value="${i}">${x}</option>`).join("")}</select>`:
+    `<label for="f_${k}">${l}</label><input id="f_${k}" inputmode="decimal" value="${d}">`}</div>`).join("");
+  root.innerHTML=`<div class="card"><p class="eq">${c.eq}</p>${fh}<div class="btns"><button class="pri" id="go">Hitung</button><button class="sec" id="rs">Reset</button></div></div>
+  <div class="res empty" id="res">Isi data lalu ketuk Hitung.</div>${c.note?`<p class="note">${c.note}</p>`:""}`;
+  const res=$("#res");
+  const vis=()=>c.fields.forEach(([k,,,o={}])=>{if(o.w)$(`[data-k="${k}"]`,root).hidden=$("#f_"+o.w[0]).selectedIndex!=o.w[1]});
+  const bad=m=>{res.className="res empty";res.innerHTML=`<span class="err">${m}</span>`};
+  function go(){
+    const v={};
+    for(const [k,l,d,o={}] of c.fields){
+      if(o.w&&$(`[data-k="${k}"]`,root).hidden)continue;
+      const el=$("#f_"+k);
+      if(o.s){v[k]=el.selectedIndex;continue}
+      const x=num(el.value);
+      if(isNaN(x)||(o.z?x<0:x<=0))return bad(`${l.replace(/ \[.*\]/,"")} harus berupa angka ${o.z?"0 atau lebih":"lebih dari 0"}.`);
+      if(k==="eff"&&x>100)return bad("Efisiensi maksimal 100%.");
+      v[k]=x;
+    }
+    const r=c.fn(v);res.className="res";
+    res.innerHTML=`<div class="k">${r.main[0]}</div><div class="big">${fmt(r.main[1],5)} <small>${r.main[2]}</small></div>`+
+      (r.rows.length?`<table>${r.rows.map(x=>`<tr><td>${x[0]}</td><td>${fmt(x[1],5)} <small>${x[2]}</small></td></tr>`).join("")}</table>`:"");
+  }
+  c.fields.forEach(([k,,,o={}])=>{if(o.s)$("#f_"+k).onchange=()=>{vis();res.className="res empty";res.textContent="Isi data lalu ketuk Hitung."}});
+  $("#go").onclick=go;
+  $("#rs").onclick=()=>calc(root,c);
+  root.onkeydown=e=>{if(e.key==="Enter"&&e.target.tagName==="INPUT")go()};
+  vis();
+}
+const FLOW=["blowing","carding","drawing","roving","ring","winding"],TOOLS=["twist","twisting","plan","mesin","nomor","panjang","berat"];
+const tile=k=>{const c=CAL[k]||KV[k];return`<a class="tile" href="#${k}"><b>${c.t}</b><span>${c.s}</span></a>`};
+function home(root){
+  root.onkeydown=null;
+  root.innerHTML=`<h2 style="margin-top:4px">Alur proses pemintalan</h2><ol class="flow">${FLOW.map((k,i)=>`<li data-n="${i+1}">${tile(k)}</li>`).join("")}</ol>
+  <h2>Alat bantu</h2><div class="grid">${TOOLS.map(tile).join("")}</div>
+  <p class="note">Semua perhitungan produksi memakai lama produksi (jam) dan efisiensi (%) yang bisa Anda atur sendiri. Hasil adalah perkiraan teoritis berdasarkan rumus standar.</p>`;
+}
+function route(){
+  const s=location.hash.slice(1),c=CAL[s]||KV[s],root=$("#app");
+  $("#back").hidden=!c;$("#by").hidden=!!c;
+  $("#ttl").textContent=c?c.t:"Kalkulator spinning";
+  $("#sub").textContent=c?c.s:"Produksi tiap mesin, twist, dan konversi satuan";
+  document.title=(c?c.t+" – ":"")+"Kalkulator Spinning";
+  c?(CAL[s]?calc(root,c):konv(root,c)):home(root);
+  scrollTo(0,0);
+}
+addEventListener("hashchange",route);route();
+</script>
+</body>
+</html>
