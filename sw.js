@@ -1,5 +1,4 @@
-// Naikkan angka versi ini setiap kali Anda mengubah index.html agar cache diperbarui
-const VERSION = 'v1';
+const VERSION = 'v1.2';
 const CORE = `spincalc-core-${VERSION}`;
 const FONTS = 'spincalc-fonts';
 const CORE_FILES = [
