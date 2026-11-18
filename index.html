@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spinning Calculator – Production, Yarn Count, Conversion</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#22356b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Spin Calc">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;700&display=swap">
+<style>
+:root{--bg:#eef1f7;--card:#fff;--ink:#131b33;--mut:#5d6785;--line:#d5dbe8;--ind:#22356b;--soft:#e4e9f6;--on:#fff;--gold:#e3a21a;--hd:#22356b;--err:#b3261e;--tl:#0e7c7b;--gs:#fbefd2;--ts:#d6f0ee;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1226;--card:#151c38;--ink:#e9ecf7;--mut:#9aa5c9;--line:#29335c;--ind:#8fa8ee;--soft:#1f2850;--on:#0d1226;--gold:#f0b63a;--hd:#151c38;--err:#ff8f86;--tl:#5fd0c8;--gs:#3a2f12;--ts:#12332f}}
+:root[data-theme="dark"]{--bg:#0d1226;--card:#151c38;--ink:#e9ecf7;--mut:#9aa5c9;--line:#29335c;--ind:#8fa8ee;--soft:#1f2850;--on:#0d1226;--gold:#f0b63a;--hd:#151c38;--err:#ff8f86;--tl:#5fd0c8;--gs:#3a2f12;--ts:#12332f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+header{background:var(--hd);color:#fff;padding:16px 18px 0;overflow:hidden}
+.hd{max-width:640px;margin:0 auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:36px}
+.lang{display:flex;gap:4px;margin-left:auto}
+.lang button{background:transparent;color:#c9d3f2;border:1.5px solid #c9d3f2;border-radius:8px;padding:4px 10px;font:700 .8rem Figtree,system-ui,sans-serif;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#131b33}
+#back{display:inline-block;color:#c9d3f2;text-decoration:none;font-weight:700;padding:4px 0 8px}
+h1{font:800 1.8rem/1.1 "Bricolage Grotesque",Figtree,system-ui,sans-serif;margin:0;letter-spacing:-.02em}
+header p{margin:6px 0 0;color:#c9d3f2;font-size:.95rem}
+header p.by{margin-top:10px;font-size:.85rem;font-weight:700;color:var(--gold);line-height:1.4}
+header p.by span{font-size:.8rem;font-weight:500;color:#c9d3f2}
+header p.by span.ct{display:block;margin-top:6px;line-height:1.6}
+header p.by em{font-style:normal}
+header p.by .ic{width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:7px;color:#c9d3f2}
+header p.by a{color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:2px}
+header p.by a:hover{color:var(--gold)}
+.yarn{display:block;width:100%;max-width:640px;margin:10px auto 0;height:40px}
+.yarn path{fill:none;stroke-linecap:round;stroke-dasharray:900;stroke-dashoffset:900;animation:draw 1.8s ease-out forwards}
+.yarn .b{animation-delay:.25s}
+@keyframes draw{to{stroke-dashoffset:0}}
+@media(prefers-reduced-motion:reduce){.yarn path{animation:none;stroke-dashoffset:0}}
+main{max-width:640px;margin:0 auto;padding:16px 14px 40px}
+h2{font:600 1.05rem "Bricolage Grotesque",Figtree,sans-serif;margin:22px 0 10px}
+.hero{display:block;text-decoration:none;color:#fff;background:#22356b;border:1px solid #3a4f94;border-radius:20px;padding:18px 14px 16px;margin-bottom:4px}
+.hero b{display:block;font:800 1.35rem/1.15 "Bricolage Grotesque",Figtree,sans-serif;padding:0 2px}
+.hero>span{display:block;color:#c9d3f2;font-size:.88rem;margin:4px 2px 0}
+.hero:hover,.hero:active{border-color:var(--gold)}
+.strip{display:grid;grid-template-columns:repeat(6,1fr);list-style:none;margin:20px 0 0;padding:0;position:relative}
+.strip::before{content:"";position:absolute;left:8%;right:8%;top:8px;height:3px;border-radius:2px;background:var(--gold)}
+.strip li{position:relative;text-align:center;font-size:.68rem;line-height:1.2;color:#dfe5fa}
+.strip li::before{content:"";display:block;width:19px;height:19px;border-radius:50%;background:#22356b;border:3px solid var(--gold);margin:0 auto 6px}
+.list{display:grid;gap:8px}
+.tile{display:flex;gap:12px;align-items:center;width:100%;text-align:left;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 12px;font:inherit}
+.tile .ico{flex:none;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font:800 .9rem "Bricolage Grotesque",sans-serif;background:var(--gs);color:var(--ind)}
+.tile.cv .ico{background:var(--ts);color:var(--tl)}
+.tile b{display:block;font:600 1.02rem/1.2 "Bricolage Grotesque",Figtree,sans-serif}
+.tile .s{color:var(--mut);font-size:.82rem;line-height:1.3}
+.tile:active,.tile:hover{border-color:var(--ind)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px}
+.chip{flex:none;display:flex;align-items:center;gap:7px;padding:6px 13px 6px 6px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:700;font-size:.9rem;cursor:pointer}
+.chip i{font:800 .78rem "Bricolage Grotesque",sans-serif;font-style:normal;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--ind)}
+.chip[aria-pressed="true"]{background:var(--ind);border-color:var(--ind);color:var(--on)}
+.chip[aria-pressed="true"] i{background:var(--gold);color:#131b33}
+.msub{margin:2px 0 10px;color:var(--mut);font-size:.9rem}
+.ur{display:grid;grid-template-columns:1fr 1.2fr;gap:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.st{background:var(--soft);border-radius:12px;padding:10px 12px}
+.st span{display:block;font-size:.8rem;font-weight:700;color:var(--ind)}
+.st b{display:block;font:800 1.45rem/1.15 "Bricolage Grotesque",sans-serif;word-break:break-word}
+.st small{color:var(--mut);font-size:.75rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+label{display:block;font-size:.85rem;font-weight:500;color:var(--mut);margin:12px 0 5px}
+input,select{width:100%;padding:12px;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px}
+input::placeholder{color:var(--mut);opacity:.6}
+input:focus,select:focus{border-color:var(--ind)}
+.eq{margin:0;padding:9px 12px;border-radius:10px;background:var(--soft);font-size:.88rem}
+.btns{display:flex;gap:8px;margin-top:16px}
+.pri,.sec,.sw{padding:12px 18px;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;border:1.5px solid var(--ind)}
+.pri{flex:1;background:var(--ind);color:var(--on)}.sec,.sw{background:transparent;color:var(--ind)}
+.res{border:2px dashed var(--gold);background:var(--card);border-radius:16px;padding:16px}
+.res.empty{color:var(--mut);text-align:center;border-color:var(--line)}
+.k{font-size:.85rem;color:var(--mut)}
+.big{font:800 2rem/1.1 "Bricolage Grotesque",Figtree,sans-serif;word-break:break-word}
+.big small{font:500 .95rem Figtree,sans-serif;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:.93rem;margin-top:12px}
+td{padding:8px 4px;border-top:1px solid var(--line)}td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+td small{color:var(--mut)}
+tr.hit td{background:var(--soft);font-weight:700}tr.hit td:first-child{box-shadow:inset 4px 0 var(--gold);padding-left:10px}
+.row{display:flex;gap:8px;align-items:flex-end}.row>label{flex:1}.sw{padding:11px 14px}
+.cv{font:800 1.25rem/1.25 "Bricolage Grotesque",Figtree,sans-serif;margin:16px 0 0;word-break:break-word}
+.err{color:var(--err);font-weight:500}
+.note{font-size:.82rem;color:var(--mut);margin:10px 0 0}
+.hist{margin-top:18px}
+.hh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 10px}
+.hh h2{margin:0}
+.clr{padding:6px 12px;border-radius:10px;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;background:transparent;color:var(--ind);border:1.5px solid var(--ind)}
+.hl{list-style:none;margin:0;padding:0}
+.hl li{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.hl .ht{font-size:.75rem;color:var(--mut)}
+.hl .hr{font-weight:700;word-break:break-word}
+.hl .hi{font-size:.82rem;color:var(--mut);word-break:break-word}
+.hempty{color:var(--mut);font-size:.9rem;text-align:center;padding:14px;border:1px dashed var(--line);border-radius:12px}
+</style>
+</head>
+<body>
+<header><div class="hd"><div class="top"><a id="back" href="#" hidden>‹ Home</a><div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-l="en" aria-pressed="true">EN</button><button type="button" data-l="id" aria-pressed="false">ID</button></div></div><h1 id="ttl"></h1><p id="sub"></p><p class="by" id="by"><em class="t" data-t="Developed by:">Developed by:</em> Muhammad Ressa H. S.<br><span>AK - Tekstil Solo</span><span class="ct"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1.6 2L12 12.6 19.4 7H4.6zM4 8.9V17h16V8.9l-8 6-8-6z" fill="currentColor"/></svg><a href="mailto:m.ressahs@gmail.com" aria-label="Email m.ressahs@gmail.com">m.ressahs@gmail.com</a><br><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm5.2-3.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z" fill="currentColor"/></svg><a href="https://www.instagram.com/ressa.hs?dlrf=MW4xcW1rc2J5ZzhheA==" target="_blank" rel="noopener noreferrer" aria-label="Instagram @ressa.hs">@ressa.hs</a></span></p></div>
+<svg class="yarn" viewBox="0 0 360 40" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 20C30 0 60 40 90 20S150 0 180 20S240 40 270 20S330 0 360 20" stroke="#e3a21a" stroke-width="6"/>
+<path class="b" d="M0 20C30 40 60 0 90 20S150 40 180 20S240 0 270 20S330 40 360 20" stroke="#dfe5fa" stroke-width="6"/></svg></header>
+<main id="app"></main>
+<script>
+const GL=453.59237,MY=.9144,$=(s,r=document)=>r.querySelector(s);
+/* ===== LANGUAGE ===== */
+const LK="spinCalcLang";
+const D={
+"Developed by:":"Dikembangkan oleh:","Email:":"Email:","Instagram:":"Instagram:","Language":"Bahasa",
+"Production time unit":"Satuan waktu produksi","Hours":"Jam","Minutes":"Menit","Production time [minutes]":"Waktu produksi [menit]","Production per hour":"Produksi per jam","Production per minute":"Produksi per menit",
+"Production Calculation":"Perhitungan Produksi","Blowing to winding, choose the machine":"Blowing sampai Winding, pilih mesinnya",
+"Yarn Count Calculation":"Perhitungan Nomor Benang","Ne, Nm, Tex, Denier from length and weight":"Ne, Nm, Tex, Denier dari panjang dan berat",
+"Yarn Count Conversion":"Konversi Nomor Benang","Length Conversion":"Konversi Panjang","Weight Conversion":"Konversi Berat","Twist Conversion":"Konversi Twist",
+"Spin Plan Calculation":"Perhitungan Rencana Spinning","Machine Count Calculation":"Perhitungan Jumlah Mesin",
+"TPI, TPM, and twist multiplier (TM)":"TPI, TPM, dan twist multiplier (TM)","Calculation":"Perhitungan","Conversion":"Konversi",
+"Yarn length":"Panjang benang","Yarn weight":"Berat benang","Length and weight must be numbers greater than 0.":"Panjang dan berat harus berupa angka lebih besar dari 0.",
+"Weight unit":"Satuan berat","Bale weight [kg]":"Berat 1 bale [kg]","Per minute":"Per menit","Per day (24 hours)":"Per hari (24 jam)","Equivalent bales":"Setara bale",
+"Capacity weight unit":"Satuan berat kapasitas","Capacity per":"Kapasitas per","Hour":"Jam","Minute":"Menit","Day":"Hari",
+"‹ Home":"‹ Beranda","Spinning Calculator":"Kalkulator Spinning",
+"Production, yarn count, and unit conversion":"Produksi, nomor benang, dan konversi satuan",
+
+"All production calculations use production time (hours) and efficiency (%), which you can adjust yourself. Results are theoretical estimates based on standard formulas.":"Semua perhitungan produksi menggunakan waktu produksi (jam) dan efisiensi (%), yang dapat Anda atur sendiri. Hasil merupakan estimasi teoretis berdasarkan rumus standar.",
+"History":"Riwayat","Clear history":"Hapus riwayat","No calculations yet.":"Belum ada perhitungan.",
+"Calculate":"Hitung","Reset":"Reset","Fill in the data, then tap Calculate.":"Isi data, lalu ketuk Hitung.",
+"e.g.":"Contoh:","must be a number":"harus berupa angka","0 or greater":"0 atau lebih","greater than 0":"lebih besar dari 0",
+"Efficiency cannot exceed 100%.":"Efisiensi tidak boleh melebihi 100%.",
+"Value":"Nilai","From":"Dari","To":"Ke","Swap units":"Tukar satuan","Value must be a number greater than 0.":"Nilai harus berupa angka lebih besar dari 0.",
+"Production time [hours]":"Waktu produksi [jam]","Machine efficiency [%]":"Efisiensi mesin [%]",
+"Actual production":"Produksi aktual","Per hour":"Per jam","kg/hour":"kg/jam","Theoretical (100% efficiency)":"Teoritis (efisiensi 100%)","Lost production":"Produksi hilang",
+"twists/inch":"twist/inci","twists/meter":"twist/meter","g/min":"g/menit","machines":"mesin",
+"Blowing":"Blowing","Blow room: line capacity per hour":"Blow room: kapasitas line per jam",
+"Production = Capacity × Hours × Eff × Number of lines":"Produksi = Kapasitas × Jam × Eff × Jumlah line",
+"Line capacity":"Kapasitas line","Number of lines":"Jumlah line",
+"Carding":"Carding","Fibre into sliver":"Serat menjadi sliver",
+"Number of carding machines":"Jumlah mesin carding","Sliver count Ne [hank/lbs]":"Nomor sliver Ne [hank/lbs]",
+"Delivery speed [meters/min]":"Kecepatan delivery [meter/menit]",
+"Production (kg) = (Speed × 60 × Hours × Eff × Quantity × 453.6) / (840 × 0.9144 × Ne × 1000)":"Produksi (kg) = (Kecepatan × 60 × Jam × Eff × Jumlah × 453.6) / (840 × 0.9144 × Ne × 1000)",
+"Drawing":"Drawing","Breaker and finisher draw frames":"Mesin drawing breaker dan finisher","Number of deliveries":"Jumlah delivery",
+"Roving":"Roving","Simplex or speed frame":"Simplex atau speed frame",
+"Ring Spinning":"Ring Spinning","Ring frame: sliver or roving into yarn":"Ring frame: sliver atau roving menjadi benang",
+"Winding":"Winding","Winding yarn onto cones":"Penggulungan benang ke cone","Number of drums":"Jumlah drum","Yarn count Ne [hank/lbs]":"Nomor benang Ne [hank/lbs]",
+"Production (kg) = (RPM × 60 × Hours × Eff × Spindles × 453.6) / (TPI × 840 × 36 × Ne × 1000)":"Produksi (kg) = (RPM × 60 × Jam × Eff × Spindle × 453.6) / (TPI × 840 × 36 × Ne × 1000)",
+"Twist: TPI = TM × √Ne and TPM = TPI × 39.37.":"Twist: TPI = TM × √Ne dan TPM = TPI × 39.37.",
+"Spindle RPM":"RPM spindle","Known twist value":"Nilai twist yang diketahui","TM (twist multiplier)":"TM (twist multiplier)",
+"Twist multiplier (TM)":"Twist multiplier (TM)","TPI [twists/inch]":"TPI [twist/inci]","TPM [twists/meter]":"TPM [twist/meter]",
+"Ne count [hank/lbs]":"Nomor Ne [hank/lbs]","Number of active spindles":"Jumlah spindle aktif",
+
+"Calculate from":"Hitung dari",
+"TM and Ne → TPI and TPM":"TM dan Ne → TPI dan TPM",
+"Work backwards from the production target, including waste":"Hitung mundur dari target produksi, termasuk waste",
+"Previous process production = Target + (Target × Waste% / 100)":"Produksi proses sebelumnya = Target + (Target × Waste% / 100)",
+"Example waste figures from the module: Winding 1%, Ring 2%, Roving 0.75%, DF 0.4–0.5%, Carding 3–6%.":"Contoh angka waste dari modul: Winding 1%, Ring 2%, Roving 0.75%, DF 0.4–0.5%, Carding 3–6%.",
+"Winding production target [kg]":"Target produksi Winding [kg]","Blow Room requirement":"Kebutuhan Blow Room","Extra due to waste":"Tambahan akibat waste",
+"Required production divided by the capacity of one machine":"Produksi yang dibutuhkan dibagi kapasitas satu mesin",
+"Machines = Required production / Capacity of 1 machine":"Mesin = Produksi dibutuhkan / Kapasitas 1 mesin",
+"Total production required [kg]":"Total produksi yang dibutuhkan [kg]","Capacity of 1 machine [kg]":"Kapasitas 1 mesin [kg]",
+"Machines required (rounded up)":"Mesin yang dibutuhkan (dibulatkan ke atas)","Calculated value":"Nilai hitungan",
+"Yarn count":"Nomor benang","Length":"Panjang","Metric, imperial, hank, and lea":"Metrik, imperial, hank, dan lea","Weight":"Berat",
+"Gram, kilogram, pound, ounce, grain":"Gram, kilogram, pound, ounce, grain",
+"Ne (cotton)":"Ne (katun)",
+"Millimeter (mm)":"Milimeter (mm)","Centimeter (cm)":"Sentimeter (cm)","Inch (in)":"Inci (in)","Foot (ft)":"Kaki (ft)","Mile (mi)":"Mil (mi)",
+"Cotton hank (840 yd)":"Hank katun (840 yd)","Worsted hank (560 yd)":"Hank worsted (560 yd)","Linen lea (300 yd)":"Lea linen (300 yd)","Cotton lea/skein (120 yd)":"Lea/skein katun (120 yd)",
+"Metric ton (t)":"Ton metrik (t)","Short ton (US)":"Ton pendek (AS)","Long ton (UK)":"Ton panjang (Inggris)"
+};
+let LANG="en";
+try{const s=localStorage.getItem(LK);LANG=(s==="id"||s==="en")?s:((navigator.language||"").toLowerCase().startsWith("id")?"id":"en")}catch(e){LANG=(navigator.language||"").toLowerCase().startsWith("id")?"id":"en"}
+const T=s=>{if(LANG!=="id")return s;if(D[s]!==undefined)return D[s];const m=/^Waste at (.*) \[%\]$/.exec(s);return m?"Waste di "+m[1]+" [%]":s};
+function applyStatic(){
+  document.documentElement.lang=LANG;
+  $("#back").textContent=T("‹ Home");
+  document.querySelectorAll(".t").forEach(e=>e.textContent=T(e.dataset.t));
+  $("#lang").setAttribute("aria-label",T("Language"));
+  document.querySelectorAll("#lang button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.l===LANG)));
+}
+function num(t){t=String(t).trim().replace("%","").replace(",",".");return t?Number(t):NaN}
+function fmt(x){
+  if(!isFinite(x))return "–";if(x===0)return "0";
+  const a=Math.abs(x);
+  if(a>=1e9||a<1e-4){const[m,e]=x.toExponential(4).split("e");return m.replace(/\.?0+$/,"")+"e"+e}
+  const t=a>=1000?x.toFixed(2):x.toPrecision(5);
+  return t.includes(".")?t.replace(/\.?0+$/,""):t
+}
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+/* ===== HISTORY ===== */
+const HK="spinCalcHistory_",MEM={};
+function hLoad(k){try{const r=localStorage.getItem(HK+k);if(r){const a=JSON.parse(r);if(Array.isArray(a))return a}}catch(e){}return MEM[k]||[]}
+function hSave(k,a){MEM[k]=a;try{localStorage.setItem(HK+k,JSON.stringify(a))}catch(e){}}
+function hAdd(k,i,r){
+  const a=hLoad(k),j=i.join(" · ");
+  if(a[0]&&a[0].r===r&&a[0].i.join(" · ")===j)return;
+  a.unshift({t:Date.now(),i,r});hSave(k,a.slice(0,30));
+}
+function hRender(box,k){
+  const a=hLoad(k);
+  box.innerHTML=`<div class="hh"><h2>${T("History")}</h2>${a.length?`<button class="clr" type="button">${T("Clear history")}</button>`:""}</div>`+
+    (a.length?`<ul class="hl">${a.map(e=>`<li><div class="ht">${esc(new Date(e.t).toLocaleString(LANG==="id"?"id-ID":"en-GB",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}))}</div><div class="hr">${esc(e.r)}</div>${e.i.length?`<div class="hi">${esc(e.i.join(" · "))}</div>`:""}</li>`).join("")}</ul>`:`<div class="hempty">${T("No calculations yet.")}</div>`);
+  const b=$(".clr",box);if(b)b.onclick=()=>{hSave(k,[]);hRender(box,k)};
+}
+/* ===== DATA & FORMULAS ===== */
+const TU=["tu","Production time unit",0,{s:["Hours","Minutes"]}],JAM=["jam","Production time [hours]",8,{w:["tu",0]}],JM=["mnt","Production time [minutes]",480,{w:["tu",1]}],JT=[TU,JAM,JM],H=v=>v.tu?v.mnt/60:v.jam,EF=d=>["eff","Machine efficiency [%]",d];
+const PU=["Kilogram (kg)","Gram (g)","Pound (lbs)","Ounce (oz)","Metric ton (t)"],PS={m:"blowing"};
+const kgPer=i=>BR[PU[i]]/1000,PD=p=>LANG==="id"?{minute:"menit",hour:"jam"}[p]:p;
+function hasil(kg,v){const m=v.tu==1,t=m?v.mnt:v.jam,w=LANG==="id"?(m?"menit":"jam"):(m?"minutes":"hours");return{main:["Actual production",kg,"kg/"+fmt(t)+" "+w],rows:[]}}
+const deliv=(t,s,sp,n,jl,ne,nl,ef)=>({t,s,eq:"Production (kg) = (Speed × 60 × Hours × Eff × Quantity × 453.6) / (840 × 0.9144 × Ne × 1000)",
+  fields:[["sp","Delivery speed [meters/min]",sp],["n",jl,n],["ne",nl,ne],...JT,EF(ef)],
+  fn:v=>hasil(v.sp*60*H(v)*v.eff/100*v.n*453.6/(840*MY*v.ne*1000),v)});
+const spin=(t,s,rpm,tm,ne,n,ef)=>({t,s,eq:"Production (kg) = (RPM × 60 × Hours × Eff × Spindles × 453.6) / (TPI × 840 × 36 × Ne × 1000)",
+  note:"Twist: TPI = TM × √Ne and TPM = TPI × 39.37.",
+  fields:[["rpm","Spindle RPM",rpm],["m","Known twist value",0,{s:["TM (twist multiplier)","TPI","TPM"]}],
+    ["t0","Twist multiplier (TM)",tm,{w:["m",0]}],["t1","TPI [twists/inch]",20,{w:["m",1]}],["t2","TPM [twists/meter]",800,{w:["m",2]}],
+    ["ne","Ne count [hank/lbs]",ne],["n","Number of active spindles",n],...JT,EF(ef)],
+  fn:v=>{const tpi=v.m==0?v.t0*Math.sqrt(v.ne):v.m==1?v.t1:v.t2/39.37;
+    return hasil(v.rpm*60*H(v)*v.eff/100*v.n*453.6/(tpi*840*36*v.ne*1000),v,[["TPI",tpi,"twists/inch"],["TPM",tpi*39.37,"twists/meter"]])}});
+const ST=["Winding","Ring Spinning","Roving","Finisher DF","Breaker DF","Carding","Blow Room"];
+const CAL={
+  blowing:{t:"Blowing",s:"Blow room: line capacity per hour",eq:"Production = Capacity × Hours × Eff × Number of lines",
+    fields:[["kap","Line capacity",800],["kw","Capacity weight unit",0,{s:PU}],["kp","Capacity per",0,{s:["Hour","Minute","Day"]}],["n","Number of lines",1],...JT,EF(85)],
+    fn:v=>hasil(v.kap*kgPer(v.kw)*[1,60,1/24][v.kp]*H(v)*v.eff/100*v.n,v)},
+  carding:deliv("Carding","Fibre into sliver",200,1,"Number of carding machines",.12,"Sliver count Ne [hank/lbs]",90),
+  drawing:deliv("Drawing","Breaker and finisher draw frames",600,1,"Number of deliveries",.12,"Sliver count Ne [hank/lbs]",85),
+  roving:spin("Roving","Simplex or speed frame",1200,1.2,1,120,82),
+  ring:spin("Ring Spinning","Ring frame: sliver or roving into yarn",16000,4,30,1000,93),
+  winding:deliv("Winding","Winding yarn onto cones",1500,1,"Number of drums",30,"Yarn count Ne [hank/lbs]",80),
+  twist:{t:"Twist Conversion",s:"TPI, TPM, and twist multiplier (TM)",eq:"TPI = TM × √Ne  |  TPM = TPI × 39.37  |  TPI = TPM / 39.37",
+    fields:[["m","Calculate from",0,{s:["TM and Ne → TPI and TPM","TPI → TPM","TPM → TPI"]}],["t0","Twist multiplier (TM)",4,{w:["m",0]}],["ne","Ne count [hank/lbs]",30,{w:["m",0]}],
+      ["t1","TPI [twists/inch]",20,{w:["m",1]}],["t2","TPM [twists/meter]",800,{w:["m",2]}]],
+    fn:v=>{if(v.m==2)return{main:["TPI",v.t2/39.37,"twists/inch"],rows:[]};
+      const tpi=v.m==0?v.t0*Math.sqrt(v.ne):v.t1;
+      return v.m==0?{main:["TPI",tpi,"twists/inch"],rows:[["TPM",tpi*39.37,"twists/meter"]]}:{main:["TPM",tpi*39.37,"twists/meter"],rows:[]}}},
+  plan:{t:"Spin Plan Calculation",s:"Work backwards from the production target, including waste",eq:"Previous process production = Target + (Target × Waste% / 100)",
+    note:"Example waste figures from the module: Winding 1%, Ring 2%, Roving 0.75%, DF 0.4–0.5%, Carding 3–6%.",
+    fields:[["T","Winding production target [kg]",1000],...[["Winding",1],["Ring Spinning",2],["Roving",.75],["Finisher DF",.5],["Breaker DF",.5],["Carding",4.5]].map((a,i)=>["w"+i,"Waste at "+a[0]+" [%]",a[1],{z:1}])],
+    fn:v=>{let p=v.T;const rows=[[ST[0],p,"kg"]];for(let i=0;i<6;i++){p+=p*v["w"+i]/100;rows.push([ST[i+1],p,"kg"])}
+      return{main:["Blow Room requirement",p,"kg"],rows:rows.concat([["Extra due to waste",p-v.T,"kg"]])}}},
+  mesin:{t:"Machine Count Calculation",s:"Required production divided by the capacity of one machine",eq:"Machines = Required production / Capacity of 1 machine",
+    fields:[["P","Total production required [kg]",5000],["c","Capacity of 1 machine [kg]",800]],
+    fn:v=>({main:["Machines required (rounded up)",Math.ceil(v.P/v.c-1e-9),"machines"],rows:[["Calculated value",v.P/v.c,"machines"]]})}
+};
+const NB={"Tex":[1,1,"g/1000 m"],"Dtex":[1,.1,"g/10,000 m"],"Denier":[1,1/9,"g/9000 m"],
+  "Ne (cotton)":[0,1000*GL/(840*MY),"hank 840 yd/lbs"],"Nm (metric)":[0,1000,"m/g"],
+  "Nw (worsted)":[0,1000*GL/(560*MY),"hank 560 yd/lbs"],"Nel (linen)":[0,1000*GL/(300*MY),"lea 300 yd/lbs"]};
+const toTex=(v,s)=>NB[s][0]?NB[s][1]*v:NB[s][1]/v,fromTex=(t,s)=>NB[s][0]?t/NB[s][1]:NB[s][1]/t;
+const PJ={"Millimeter (mm)":.001,"Centimeter (cm)":.01,"Meter (m)":1,"Kilometer (km)":1000,"Inch (in)":.0254,"Foot (ft)":.3048,"Yard (yd)":MY,"Mile (mi)":1609.344,
+  "Cotton hank (840 yd)":840*MY,"Worsted hank (560 yd)":560*MY,"Linen lea (300 yd)":300*MY,"Cotton lea/skein (120 yd)":120*MY};
+const BR={"Milligram (mg)":.001,"Gram (g)":1,"Kilogram (kg)":1000,"Metric ton (t)":1e6,"Ounce (oz)":GL/16,"Pound (lbs)":GL,"Grain (gr)":GL/7000,"Stone (st)":GL*14,"Short ton (US)":GL*2000,"Long ton (UK)":GL*2240};
+const KV={
+  nomor:{t:"Yarn Count Conversion",s:"Tex, Dtex, Denier, Ne, Nm, Nw, Nel",names:Object.keys(NB),fn:(v,a,b)=>fromTex(toTex(v,a),b),notes:Object.fromEntries(Object.entries(NB).map(([k,x])=>[k,x[2]]))},
+  panjang:{t:"Length Conversion",s:"Metric, imperial, hank, and lea",names:Object.keys(PJ),fn:(v,a,b)=>v*PJ[a]/PJ[b]},
+  berat:{t:"Weight Conversion",s:"Gram, kilogram, pound, ounce, grain",names:Object.keys(BR),fn:(v,a,b)=>v*BR[a]/BR[b]}};
+/*UI*/
+function konv(root,k,key){
+  root.innerHTML=`<div class="card"><label>${T("Value")}</label><input class="v" inputmode="decimal" value="1" aria-label="${T("Value")}">
+  <div class="row"><label>${T("From")}<select class="a"></select></label><button class="sw" aria-label="${T("Swap units")}">⇄</button><label>${T("To")}<select class="b"></select></label></div>
+  <div class="cv"></div></div><div class="card"><table></table></div><div class="hist"></div>`;
+  const a=$(".a",root),b=$(".b",root),v=$(".v",root),big=$(".cv",root),tb=$("table",root),hb=$(".hist",root);
+  let last="";
+  [a,b].forEach(s=>k.names.forEach(n=>s.add(new Option(T(n),n))));b.selectedIndex=1;
+  function up(){
+    const x=num(v.value);tb.innerHTML="";last="";
+    if(!(x>0)){big.innerHTML=`<span class="err">${T("Value must be a number greater than 0.")}</span>`;return}
+    last=`${fmt(x)} ${T(a.value)} = ${fmt(k.fn(x,a.value,b.value))} ${T(b.value)}`;
+    big.textContent=last;
+    tb.innerHTML=k.names.map(n=>`<tr class="${n===b.value?"hit":""}"><td>${esc(T(n))}${k.notes?`<br><small>${esc(k.notes[n])}</small>`:""}</td><td>${fmt(k.fn(x,a.value,n))}</td></tr>`).join("");
+  }
+  function rec(){if(last){hAdd(key,[],last);hRender(hb,key)}}
+  [v,a,b].forEach(e=>{e.addEventListener("input",up);e.addEventListener("change",()=>{up();rec()})});
+  $(".sw",root).onclick=()=>{const t=a.value;a.value=b.value;b.value=t;up();rec()};
+  up();hRender(hb,key);
+}
+function calc(root,c,key){
+  const fh=c.fields.map(([k,l,d,o={}])=>`<div data-k="${k}">${o.s?
+    `<label for="f_${k}">${T(l)}</label><select id="f_${k}">${o.s.map((x,i)=>`<option value="${i}">${T(x)}</option>`).join("")}</select>`:
+    `<label for="f_${k}">${T(l)}</label><input id="f_${k}" inputmode="decimal" value="" placeholder="${esc(T("e.g.")+" "+d)}">`}</div>`).join("");
+  root.innerHTML=`<div class="card"><p class="eq">${T(c.eq)}</p>${fh}<div class="btns"><button class="pri" id="go">${T("Calculate")}</button><button class="sec" id="rs">${T("Reset")}</button></div></div>
+  <div class="res empty" id="res">${T("Fill in the data, then tap Calculate.")}</div>${c.note?`<p class="note">${T(c.note)}</p>`:""}<div class="hist"></div>`;
+  const res=$("#res"),hb=$(".hist",root);
+  const vis=()=>c.fields.forEach(([k,,,o={}])=>{if(o.w)$(`[data-k="${k}"]`,root).hidden=$("#f_"+o.w[0]).selectedIndex!=o.w[1]});
+  const bad=m=>{res.className="res empty";res.innerHTML=`<span class="err">${m}</span>`};
+  function go(){
+    const v={},inp=[];
+    for(const [k,l,d,o={}] of c.fields){
+      if(o.w&&$(`[data-k="${k}"]`,root).hidden)continue;
+      const el=$("#f_"+k),tl=T(l),lab=tl.replace(/ \[.*\]/,""),un=(tl.match(/\[(.*)\]/)||[])[1];
+      if(o.s){v[k]=el.selectedIndex;inp.push(`${lab}: ${el.options[el.selectedIndex].text}`);continue}
+      const x=num(el.value);
+      if(isNaN(x)||(o.z?x<0:x<=0))return bad(`${lab} ${T("must be a number")} ${o.z?T("0 or greater"):T("greater than 0")}.`);
+      if(k==="eff"&&x>100)return bad(T("Efficiency cannot exceed 100%."));
+      v[k]=x;inp.push(`${lab}: ${fmt(x)}${un?" "+un:""}`);
+    }
+    const r=c.fn(v);res.className="res";
+    res.innerHTML=`<div class="k">${T(r.main[0])}</div><div class="big">${fmt(r.main[1],5)} <small>${T(r.main[2])}</small></div>`+
+      (r.rows.length?`<table>${r.rows.map(x=>`<tr><td>${T(x[0])}</td><td>${fmt(x[1],5)} <small>${T(x[2])}</small></td></tr>`).join("")}</table>`:"");
+    hAdd(key,inp,`${T(r.main[0])}: ${fmt(r.main[1],5)} ${T(r.main[2])}`);hRender(hb,key);
+  }
+  c.fields.forEach(([k,,,o={}])=>{if(o.s)$("#f_"+k).onchange=()=>{vis();res.className="res empty";res.textContent=T("Fill in the data, then tap Calculate.")}});
+  $("#go").onclick=go;
+  $("#rs").onclick=()=>calc(root,c,key);
+  root.onkeydown=e=>{if(e.key==="Enter"&&e.target.tagName==="INPUT")go()};
+  vis();hRender(hb,key);
+}
+const FLOW=["blowing","carding","drawing","roving","ring","winding"];
+const EX={prod:{t:"Production Calculation",s:"Blowing to winding, choose the machine"},benang:{t:"Yarn Count Calculation",s:"Ne, Nm, Tex, Denier from length and weight"}};
+const TG={benang:["Ne",0],plan:["%",0],mesin:["×",0],nomor:["⇄",1],panjang:["m",1],berat:["kg",1],twist:["TPI",1]};
+const info=k=>[CAL,KV,EX].map(o=>Object.prototype.hasOwnProperty.call(o,k)&&o[k]).find(Boolean);
+const tile=k=>{const c=info(k);return`<a class="tile${TG[k][1]?" cv":""}" href="#${k}"><span class="ico">${TG[k][0]}</span><div><b>${T(c.t)}</b><span class="s">${T(c.s)}</span></div></a>`};
+function home(root){
+  root.innerHTML=`<a class="hero" href="#prod"><b>${T(EX.prod.t)}</b><span>${T(EX.prod.s)}</span><ol class="strip">${FLOW.map(k=>`<li>${T(CAL[k].t)}</li>`).join("")}</ol></a>
+  <h2>${T("Calculation")}</h2><div class="list">${["benang","plan","mesin"].map(tile).join("")}</div>
+  <h2>${T("Conversion")}</h2><div class="list">${["nomor","panjang","berat","twist"].map(tile).join("")}</div>
+  <p class="note">${T("All production calculations use production time (hours) and efficiency (%), which you can adjust yourself. Results are theoretical estimates based on standard formulas.")}</p>`;
+}
+function prod(root){
+  root.innerHTML=`<div class="chips">${FLOW.map((k,i)=>`<button type="button" class="chip" data-k="${k}"><i>${i+1}</i>${T(CAL[k].t)}</button>`).join("")}</div><p class="msub"></p><div id="pm"></div>`;
+  const pm=$("#pm",root),chips=root.querySelectorAll(".chip");
+  const show=()=>{const c=CAL[PS.m];chips.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.k===PS.m)));$(".msub",root).textContent=T(c.s);calc(pm,c,PS.m)};
+  chips.forEach(b=>b.onclick=()=>{PS.m=b.dataset.k;show()});show();
+}
+function benang(root,key){
+  const ln=Object.keys(PJ),wn=Object.keys(BR),op=a=>a.map((n,i)=>`<option value="${i}">${esc(T(n))}</option>`).join("");
+  root.innerHTML=`<div class="card"><label for="bl">${T("Yarn length")}</label><div class="ur"><input id="bl" inputmode="decimal" placeholder="${T("e.g.")} 100"><select id="blu" aria-label="${T("Yarn length")}">${op(ln)}</select></div>
+  <label for="bw">${T("Yarn weight")}</label><div class="ur"><input id="bw" inputmode="decimal" placeholder="${T("e.g.")} 2"><select id="bwu" aria-label="${T("Yarn weight")}">${op(wn)}</select></div>
+  <div class="btns"><button class="pri" id="go">${T("Calculate")}</button><button class="sec" id="rs">${T("Reset")}</button></div></div>
+  <div class="res empty" id="res">${T("Fill in the data, then tap Calculate.")}</div><div class="hist"></div>`;
+  const l=$("#bl",root),w=$("#bw",root),lu=$("#blu",root),wu=$("#bwu",root),res=$("#res",root),hb=$(".hist",root);
+  lu.value=ln.indexOf("Meter (m)");wu.value=wn.indexOf("Gram (g)");
+  function go(){
+    const L=num(l.value),W=num(w.value);
+    if(!(L>0&&W>0)){res.className="res empty";res.innerHTML=`<span class="err">${T("Length and weight must be numbers greater than 0.")}</span>`;return}
+    const tex=W*BR[wn[wu.value]]/(L*PJ[ln[lu.value]])*1000,n=s=>fmt(fromTex(tex,s)),four=[["Ne","Ne (cotton)"],["Nm","Nm (metric)"],["Tex","Tex"],["Denier","Denier"]];
+    res.className="res";
+    res.innerHTML=`<div class="k">${T("Yarn count")}</div><div class="stats">${four.map(([a,s])=>`<div class="st"><span>${a}</span><b>${n(s)}</b><small>${esc(NB[s][2])}</small></div>`).join("")}</div>
+    <table>${["Dtex","Nw (worsted)","Nel (linen)"].map(s=>`<tr><td>${esc(T(s))}<br><small>${esc(NB[s][2])}</small></td><td>${n(s)}</td></tr>`).join("")}</table>`;
+    hAdd(key,[`${fmt(L)} ${T(ln[lu.value])}`,`${fmt(W)} ${T(wn[wu.value])}`],four.map(([a,s])=>`${a} ${n(s)}`).join(" · "));hRender(hb,key);
+  }
+  $("#go",root).onclick=go;$("#rs",root).onclick=()=>benang(root,key);
+  root.onkeydown=e=>{if(e.key==="Enter"&&e.target.tagName==="INPUT")go()};
+  hRender(hb,key);
+}
+let cur=null;
+function route(s){
+  if(typeof s!=="string")s=location.hash.slice(1);
+  if(FLOW.includes(s)){PS.m=s;s="prod"}
+  if(s===cur)return;cur=s;
+  const c=info(s),root=$("#app");root.onkeydown=null;
+  $("#back").hidden=!c;$("#by").hidden=!!c;
+  $("#ttl").textContent=T(c?c.t:"Spinning Calculator");
+  $("#sub").textContent=T(c?c.s:"Production, yarn count, and unit conversion");
+  document.title=(c?T(c.t)+" – ":"")+T("Spinning Calculator");
+  c?(s==="prod"?prod(root):s==="benang"?benang(root,s):CAL[s]?calc(root,c,s):konv(root,c,s)):home(root);
+  scrollTo(0,0);
+}
+addEventListener("hashchange",()=>route());
+document.addEventListener("click",e=>{
+  const a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
+  e.preventDefault();const k=a.getAttribute("href").slice(1);
+  try{location.hash=k}catch(x){}
+  route(k);
+});
+document.querySelectorAll("#lang button").forEach(b=>b.onclick=()=>{
+  if(b.dataset.l===LANG)return;
+  LANG=b.dataset.l;try{localStorage.setItem(LK,LANG)}catch(e){}
+  applyStatic();const s=cur;cur=null;route(s===null?undefined:s);
+});
+applyStatic();
+route();
+</script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}
+</script>
+</body>
+</html>
